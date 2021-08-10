@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Eudravigilance Data Extractor
+// @name         ADR REPORT Data Extractor
 // @namespace    http://tampermonkey.net/
 // @version      0.1
 // @description  try to take over the world!
@@ -83,7 +83,7 @@
 (function() {
     'use strict';
     let debug = false;
-    let delay = 3000;
+    let delay = 2000;
     let separator = ";";
     var full_buffer = {
     };
@@ -226,10 +226,8 @@
 
     function update_full_buffer() {
         let title = extract_title();
-        if (full_buffer[title] === undefined) {
-            let outcome = extract_outcome();
-            full_buffer[title] = outcome;
-        }
+        let outcome = extract_outcome();
+        full_buffer[title] = outcome;
     }
 
     function update_total() {
