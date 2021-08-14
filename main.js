@@ -80,6 +80,31 @@
  *   - Author is not javascript developer. This code is poorly designed
  */
 
+/*
+ "outcome": {
+   "meta": {
+     "total":
+   },
+   "data": [
+    {
+      , "_json_extract_date": date of the json extraction
+      , "_extract_date": ""
+      , "_drug_name": "COVID-19 MRNA VACCINE MODERNA (CX-024414)"
+      , "_url": "https://dap.ema.europa.eu/analytics/saw.dll?PortalPages"
+      , "_info_report": "www.adrreports.eu"
+      , "Reaction Groups": string()
+      , "Fatal": integer()
+      , "Not Recovered/Not Resolved": integer()
+      , "Not Specified": integer()
+      , "Recovered/Resolved": integer()
+      , "Recovered/Resolved With Sequelae": integer()
+      , "Recovering/Resolving": integer()
+      , "Unknown": integer()
+    }
+  ]
+}
+ */
+
 (function() {
     'use strict';
     let debug = false;
@@ -135,6 +160,27 @@
         }
     }
 
+    // from https://stackoverflow.com/a/18197341
+    function _download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    }
+
+    function extract_drug() {
+        let xpath = '/html/body/div[7]/div/table[1]/tbody/tr[1]/td[2]/div/table[1]/tbody/tr/td[2]/div[1]/div[2]/table[1]/tbody/tr/td[1]/div/table/tbody/tr[2]/td/div/div[3]/table/tbody/tr/td/div/table/tbody/tr/td/div/table/tbody/tr/td/div/div/div/div[1]/div/font[2]/b';
+        let path = document.evaluate(xpath, document, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+        let element = path.iterateNext();
+        return JSON.stringify(element.textContent);
+    }
+
     function extract_age_group_sex() {
         let xpath = '/html/body/div[7]/div/table[1]/tbody/tr[1]/td[2]/div/table[1]/tbody/tr/td[2]/div[1]/div[2]/table[2]/tbody/tr/td[3]/div/table/tbody/tr[3]/td/div/div[3]/table/tbody/tr/td/div/table/tbody/tr/td/div/table/tbody/tr/td/div/div/div/div[1]/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/div/';
     }
@@ -160,8 +206,8 @@
             values.push(Number(content[i].textContent.replaceAll(/,/g, "")));
         }
         return [
-            [JSON.stringify("Reaction Groups")].concat(titles),
-            [extract_title()].concat(values.reverse()),
+            [JSON.stringify("Reaction Groups")].concat(titles).concat(["_drug"]),
+            [extract_title()].concat(values.reverse()).concat([extract_drug()]),
         ]
         // return _zip(titles, values.reverse());
     }
